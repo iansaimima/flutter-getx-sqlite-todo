@@ -12,12 +12,12 @@ class TodoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("ToDo"),
-        ),
-        body: GetX<TodoController>(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("ToDo"),
+      ),
+      body: SafeArea(
+        child: GetX<TodoController>(
           builder: (controller) {
             if (controller.loading.value) {
               return const Center(
@@ -231,12 +231,12 @@ class TodoView extends StatelessWidget {
             );
           },
         ),
-        floatingActionButton: FloatingActionButton(
-          child: const Icon(Icons.add),
-          onPressed: () {
-            todoController.goToTodoDetail('');
-          },
-        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          todoController.goToTodoDetail('');
+        },
       ),
     );
   }

@@ -11,12 +11,12 @@ class TodoDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TodoModel todoModel = todoController.todoModel.value;
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(todoController.titleTodoDetail.value),
-        ),
-        body: Obx(() => SingleChildScrollView(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(todoController.titleTodoDetail.value),
+      ),
+      body: SafeArea(
+        child: Obx(() => SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
