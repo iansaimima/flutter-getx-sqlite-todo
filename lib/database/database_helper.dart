@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todo/models/todo_model.dart';
@@ -47,13 +48,13 @@ class DatabaseHelper {
       await db!.insert(
           tableTodo,
           {
-            'uuid': uuid,
-            'title': todo.title,
-            'description': todo.description,
-            'timestamp': todo.timestamp,
-            'is_done': todo.isDone ? 1 : 0,
-            'priority': todo.priority,
-            'archived': todo.isArchived
+            columnTodoUuid: uuid,
+            columnTodoTitle: todo.title,
+            columnTodoDescription: todo.description,
+            columnTodoTimestamp: todo.timestamp,
+            columnTodoIsDone: todo.isDone ? 1 : 0,
+            columnTodoPriority: todo.priority,
+            columnTodoArchived: todo.isArchived
           },
           conflictAlgorithm: ConflictAlgorithm.fail);
 
@@ -72,11 +73,11 @@ class DatabaseHelper {
       await db!.update(
           tableTodo,
           {
-            'title': todo.title,
-            'description': todo.description,
-            'timestamp': todo.timestamp,
-            'is_done': todo.isDone ? 1 : 0,
-            'priority': todo.priority
+            columnTodoTitle: todo.title,
+            columnTodoDescription: todo.description,
+            columnTodoTimestamp: todo.timestamp,
+            columnTodoIsDone: todo.isDone ? 1 : 0,
+            columnTodoPriority: todo.priority
           },
           where: "$columnTodoUuid = ?",
           whereArgs: [uuid]);
@@ -94,6 +95,54 @@ class DatabaseHelper {
     Database? db = await instance.database;
     final List<Map<String, dynamic>> list =
         await db!.query(tableTodo, orderBy: "$columnTodoTimestamp ASC");
+
+    List<TodoModel> todoList = List.generate(list.length, (i) {
+      return TodoModel(
+        uuid: list[i][columnTodoUuid],
+        title: list[i][columnTodoTitle],
+        timestamp: list[i][columnTodoTimestamp],
+        isDone: list[i][columnTodoIsDone] == 1,
+        isArchived: list[i][columnTodoArchived] == 1,
+        priority: list[i][columnTodoPriority],
+        description: list[i][columnTodoDescription],
+      );
+    });
+    return todoList;
+  }
+
+  Future<List<TodoModel>> todoGetListForStatus(String status) async {
+    Database? db = await instance.database;
+
+    String where = "";
+    List<String> whereList = [];
+
+    String currentTimestamp = DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now());
+
+    switch (status) {
+      case "active":
+        whereList.add("$columnTodoArchived = 0");
+        whereList.add("$columnTodoTimestamp > ${DateTime.now().millisecondsSinceEpoch}" );
+        whereList.add("$columnTodoIsDone = 0");
+        break;
+      case "expired":
+        whereList.add("$columnTodoTimestamp < ${DateTime.now().millisecondsSinceEpoch}" );
+        break;
+      case "done":
+        whereList.add("$columnTodoIsDone = 1");
+        break;
+      case "archive":
+        whereList.add("$columnTodoArchived = 1");
+        break;
+      default:
+    }
+
+    String whereString = "";
+    if(whereList.isNotEmpty){
+      whereString = whereList.join(" AND ");
+    }
+    print(whereString);
+    final List<Map<String, dynamic>> list =
+        await db!.query(tableTodo, orderBy: "$columnTodoTimestamp ASC", where: whereString.isEmpty ? null : whereString);
 
     List<TodoModel> todoList = List.generate(list.length, (i) {
       return TodoModel(

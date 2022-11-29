@@ -53,6 +53,21 @@ class TodoController extends GetxController {
     }
   }
 
+  setFilter(String filter) async{
+    selectedFilterStatus(filter);
+    try {
+      loading(true);
+      List<TodoModel> list = await DatabaseHelper.instance.todoGetListForStatus(filter);
+      todoList.clear();
+      for (var row in list) {
+        todoList.add(row);
+      }
+      loading(false);
+    } finally {
+      loading(false);
+    }
+  }
+
   goToTodoDetail(String uuid) async {
     TodoModel curr = await DatabaseHelper.instance.todoGet(uuid);
 
@@ -83,6 +98,7 @@ class TodoController extends GetxController {
     } else {
       titleController.clear();
       descriptionController.clear();
+      todoModel(curr);
     }
 
     Get.toNamed(ROUTE_TODO_DETAIL);
@@ -246,7 +262,7 @@ class TodoController extends GetxController {
     DateTime? picked = await showDatePicker(
         context: context,
         initialDate: selectedDate.value,
-        firstDate: selectedDate.value,
+        firstDate: DateTime.now().subtract(Duration(days: 30)),
         lastDate: DateTime(DateTime.now().year + 1),
         initialDatePickerMode: DatePickerMode.day);
 

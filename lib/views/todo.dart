@@ -25,11 +25,11 @@ class TodoView extends StatelessWidget {
               );
             }
 
-            if (controller.todoList.isEmpty) {
-              return const Center(
-                child: Text("No Data."),
-              );
-            }
+            // if (controller.todoList.isEmpty) {
+            //   return const Center(
+            //     child: Text("No Data."),
+            //   );
+            // }
 
             return Column(
               children: [
@@ -53,7 +53,7 @@ class TodoView extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          todoController.selectedFilterStatus("active");
+                          todoController.setFilter("active");
                         },
                         child: Text(
                           "Active",
@@ -80,7 +80,7 @@ class TodoView extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          todoController.selectedFilterStatus("expired");
+                          todoController.setFilter("expired");
                         },
                         child: Text(
                           "Expired",
@@ -107,7 +107,7 @@ class TodoView extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          todoController.selectedFilterStatus("done");
+                          todoController.setFilter("done");
                         },
                         child: Text(
                           "Done",
@@ -134,7 +134,7 @@ class TodoView extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          todoController.selectedFilterStatus("archive");
+                          todoController.setFilter("archive");
                         },
                         child: Text(
                           "Archived",
@@ -150,66 +150,83 @@ class TodoView extends StatelessWidget {
                     ],
                   ),
                 ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: controller.todoList.length,
-                    itemBuilder: ((context, index) {
-                      TodoModel todoModel = controller.todoList[index];
+                (controller.todoList.isEmpty)
+                    ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 50.0),
+                      child: Center(
+                          child: Text("No Data."),
+                        ),
+                    )
+                    : Expanded(
+                        child: ListView.builder(
+                          itemCount: controller.todoList.length,
+                          itemBuilder: ((context, index) {
+                            TodoModel todoModel = controller.todoList[index];
 
-                      String date = controller.convertTimestampToDateString(
-                          todoModel.timestamp, "dd MMM yy HH:mm");
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 1,
-                              color: Colors.black12,
-                              style: BorderStyle.solid,
-                            ),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(8),
-                            ),
-                          ),
-                          child: ListTile(
-                            title: Text(todoModel.title),
-                            subtitle: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Created $date"),
-                                Container(
-                                  padding: EdgeInsets.only(
-                                      left: 8, top: 4, right: 8, bottom: 4),
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(40),
-                                      border: Border.all(
-                                          color: todoController
-                                              .generateColorForPriority(
-                                            todoModel.priority.toLowerCase(),
-                                          ),
-                                          width: 1)),
-                                  child: Text(
-                                    todoModel.priority.toString().toUpperCase(),
-                                    style: TextStyle(
-                                        color: todoController
-                                            .generateColorForPriority(todoModel
-                                                .priority
-                                                .toLowerCase()),
-                                        fontSize: 10),
+                            String date =
+                                controller.convertTimestampToDateString(
+                                    todoModel.timestamp, "dd MMM yy HH:mm");
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 1,
+                                    color: Colors.black12,
+                                    style: BorderStyle.solid,
+                                  ),
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(8),
                                   ),
                                 ),
-                              ],
-                            ),
-                            onTap: () {
-                              todoController.goToTodoDetail(todoModel.uuid);
-                            },
-                          ),
+                                child: ListTile(
+                                  title: Text(todoModel.title),
+                                  subtitle: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("Created $date"),
+                                      Container(
+                                        padding: const EdgeInsets.only(
+                                            left: 8,
+                                            top: 4,
+                                            right: 8,
+                                            bottom: 4),
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(40),
+                                            border: Border.all(
+                                                color: todoController
+                                                    .generateColorForPriority(
+                                                  todoModel.priority
+                                                      .toLowerCase(),
+                                                ),
+                                                width: 1)),
+                                        child: Text(
+                                          todoModel.priority
+                                              .toString()
+                                              .toUpperCase(),
+                                          style: TextStyle(
+                                              color: todoController
+                                                  .generateColorForPriority(
+                                                      todoModel.priority
+                                                          .toLowerCase()),
+                                              fontSize: 10),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    todoController
+                                        .goToTodoDetail(todoModel.uuid);
+                                  },
+                                ),
+                              ),
+                            );
+                          }),
                         ),
-                      );
-                    }),
-                  ),
-                ),
+                      ),
               ],
             );
           },
